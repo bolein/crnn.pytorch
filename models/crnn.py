@@ -1,5 +1,5 @@
 import torch.nn as nn
-import utils
+from models import utils
 
 
 class BidirectionalLSTM(nn.Module):
@@ -85,3 +85,14 @@ class CRNN(nn.Module):
         output = utils.data_parallel(self.rnn, conv, self.ngpu)
 
         return output
+
+    def forward_depth(self, input, depth=1):
+        y = input
+
+        for child in self.cnn.children():
+            y = utils.data_parallel(child, y, self.ngpu)
+            depth -= 1
+            if depth < 0:
+                break
+
+        return y

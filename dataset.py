@@ -67,7 +67,6 @@ class lmdbDataset(Dataset):
 
 
 class resizeNormalize(object):
-
     def __init__(self, size, interpolation=Image.BILINEAR):
         self.size = size
         self.interpolation = interpolation
@@ -78,6 +77,21 @@ class resizeNormalize(object):
         img = self.toTensor(img)
         img.sub_(0.5).div_(0.5)
         return img
+
+
+def image_from_tensor(tensor):
+    return transforms.ToPILImage()(tensor)
+
+
+def get_white_noise_image(size):
+    pil_map = Image.new("RGBA", size, 255)
+    random_grid = map(lambda x: (
+        int(random.random() * 256),
+        int(random.random() * 256),
+        int(random.random() * 256)
+    ), [0] * size[0] * size[1])
+    pil_map.putdata(random_grid)
+    return pil_map
 
 
 class randomSequentialSampler(sampler.Sampler):
